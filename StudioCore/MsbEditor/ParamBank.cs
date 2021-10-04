@@ -7,6 +7,7 @@ using SoulsFormats;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace StudioCore.MsbEditor
 {
@@ -69,18 +70,18 @@ namespace StudioCore.MsbEditor
                 _paramdefs.Add(pdef.ParamType, pdef);
             }
         }
-        
+
         public static void LoadParamDefaultNames()
         {
             var dir = AssetLocator.GetParamNamesDir();
             var files = Directory.GetFiles(dir, "*.txt");
-            while (Params == null); //super hack
-                Thread.Sleep(100);
+            while (Params == null) ; //super hack
+            Thread.Sleep(100);
             foreach (var f in files)
             {
                 int last = f.LastIndexOf('\\') + 1;
                 string file = f.Substring(last);
-                string param = file.Substring(0, file.Length-4);
+                string param = file.Substring(0, file.Length - 4);
                 if (!_params.ContainsKey(param))
                     continue;
                 string names = File.ReadAllText(f);
@@ -120,17 +121,25 @@ namespace StudioCore.MsbEditor
         {
             var dir = AssetLocator.GameRootDirectory;
             var mod = AssetLocator.GameModDirectory;
-            if (!File.Exists($@"{dir}\\param\gameparam\gameparam.parambnd.dcx"))
+
+            string paramBinderName = "gameparam.parambnd.dcx";
+
+            if (Directory.GetParent(dir).Parent.FullName.Contains("BLUS"))
+            {
+                paramBinderName = "gameparamna.parambnd.dcx";
+            }
+
+            if (!File.Exists($@"{dir}\\param\gameparam\{paramBinderName}"))
             {
                 MessageBox.Show("Could not find DES regulation file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             // Load params
-            var param = $@"{mod}\param\gameparam\gameparam.parambnd.dcx";
+            var param = $@"{mod}\param\gameparam\{paramBinderName}";
             if (!File.Exists(param))
             {
-                param = $@"{dir}\param\gameparam\gameparam.parambnd.dcx";
+                param = $@"{dir}\param\gameparam\{paramBinderName}";
             }
             BND3 paramBnd = BND3.Read(param);
 
@@ -189,9 +198,6 @@ namespace StudioCore.MsbEditor
             "eventlocation",
             "eventparam",
             "generatordbglocation",
-            "generatorlocation",
-            "generatorparam",
-            "generatorregistparam",
             "hitgroupparam",
             "intrudepointparam",
             "mapobjectinstanceparam",
@@ -211,8 +217,8 @@ namespace StudioCore.MsbEditor
             }
             if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
             {
-                MessageBox.Show("Use yapped to decrypt your DS2 regulation file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show("Attempting to decrypt DS2 regulation file, else functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //return;
             }
 
             // Keep track of loaded params as we load loose and regulation params
@@ -257,11 +263,26 @@ namespace StudioCore.MsbEditor
 
             // Load params
             var param = $@"{mod}\enc_regulation.bnd.dcx";
+            BND4 paramBnd;
             if (!File.Exists(param))
             {
+                // If there is no mod file, check the base file. Decrypt it if you have to.
                 param = $@"{dir}\enc_regulation.bnd.dcx";
+                if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
+                {
+                    paramBnd = SFUtil.DecryptDS2Regulation(param);
+                }
+                // No need to decrypt
+                else
+                {
+                    paramBnd = BND4.Read(param);
+                }
             }
-            BND4 paramBnd = BND4.Read(param);
+            // Mod file exists, use that.
+            else
+            {
+                paramBnd = BND4.Read(param);
+            }
             EnemyParam = GetParam(paramBnd, "EnemyParam.param");
             if (EnemyParam != null)
             {
@@ -346,7 +367,7 @@ namespace StudioCore.MsbEditor
             AssetLocator = l;
             ReloadParams();
         }
-        
+
         private static void SaveParamsDS1()
         {
             var dir = AssetLocator.GameRootDirectory;
@@ -389,11 +410,35 @@ namespace StudioCore.MsbEditor
 
             // Load params
             var param = $@"{mod}\enc_regulation.bnd.dcx";
+            BND4 paramBnd;
             if (!File.Exists(param))
             {
+                // If there is no mod file, check the base file. Decrypt it if you have to.
                 param = $@"{dir}\enc_regulation.bnd.dcx";
+                if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
+                {
+                    // Decrypt the file
+                    paramBnd = SFUtil.DecryptDS2Regulation(param);
+
+                    // Since the file is encrypted, check for a backup. If it has none, then make one and write a decrypted one.
+                    if (!File.Exists($@"{param}.bak"))
+                    {
+                        File.Copy(param, $@"{param}.bak", true);
+                        paramBnd.Write(param);
+                    }
+
+                }
+                // No need to decrypt
+                else
+                {
+                    paramBnd = BND4.Read(param);
+                }
             }
-            BND4 paramBnd = BND4.Read(param);
+            // Mod file exists, use that.
+            else
+            {
+                paramBnd = BND4.Read(param);
+            }
 
             // If params aren't loose, replace params with edited ones
             if (!loose)
@@ -476,7 +521,7 @@ namespace StudioCore.MsbEditor
                     Files = paramBnd.Files.Where(f => f.Name.EndsWith(".param")).ToList()
                 };
 
-                BND4 stayBND = new BND4
+                /*BND4 stayBND = new BND4
                 {
                     BigEndian = false,
                     Compression = DCX.Type.DCX_DFLT_10000_44_9,
@@ -486,10 +531,10 @@ namespace StudioCore.MsbEditor
                     Format = Binder.Format.Compression | Binder.Format.Flag6 | Binder.Format.LongOffsets | Binder.Format.Names1,
                     Unicode = true,
                     Files = paramBnd.Files.Where(f => f.Name.EndsWith(".stayparam")).ToList()
-                };
+                };*/
 
                 Utils.WriteWithBackup(dir, mod, @"param\gameparam\gameparam_dlc2.parambnd.dcx", paramBND);
-                Utils.WriteWithBackup(dir, mod, @"param\gameparam\stayparam.parambnd.dcx", stayBND);
+                //Utils.WriteWithBackup(dir, mod, @"param\stayparam\stayparam.parambnd.dcx", stayBND);
             }
         }
 
@@ -521,8 +566,46 @@ namespace StudioCore.MsbEditor
             }
             Utils.WriteWithBackup(dir, mod, @"param\gameparam\gameparam.parambnd.dcx", paramBnd);
         }
+        private static void SaveParamsDES()
+        {
+            var dir = AssetLocator.GameRootDirectory;
+            var mod = AssetLocator.GameModDirectory;
 
-        public static void SaveParams(bool loose=false)
+            string paramBinderName = "gameparam.parambnd.dcx";
+
+            if (Directory.GetParent(dir).Parent.FullName.Contains("BLUS"))
+            {
+                paramBinderName = "gameparamna.parambnd.dcx";
+            }
+
+            Debug.WriteLine(paramBinderName);
+
+            if (!File.Exists($@"{dir}\\param\gameparam\{paramBinderName}"))
+            {
+                MessageBox.Show("Could not find param file. Cannot save.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Load params
+            var param = $@"{mod}\param\gameparam\{paramBinderName}";
+            if (!File.Exists(param))
+            {
+                param = $@"{dir}\param\gameparam\{paramBinderName}";
+            }
+            BND3 paramBnd = BND3.Read(param);
+
+            // Replace params with edited ones
+            foreach (var p in paramBnd.Files)
+            {
+                if (_params.ContainsKey(Path.GetFileNameWithoutExtension(p.Name)))
+                {
+                    p.Bytes = _params[Path.GetFileNameWithoutExtension(p.Name)].Write();
+                }
+            }
+            Utils.WriteWithBackup(dir, mod, $@"param\gameparam\{paramBinderName}", paramBnd);
+        }
+
+        public static void SaveParams(bool loose = false)
         {
             if (_params == null)
             {
@@ -531,6 +614,10 @@ namespace StudioCore.MsbEditor
             if (AssetLocator.Type == GameType.DarkSoulsPTDE)
             {
                 SaveParamsDS1();
+            }
+            if (AssetLocator.Type == GameType.DemonsSouls)
+            {
+                SaveParamsDES();
             }
             if (AssetLocator.Type == GameType.DarkSoulsIISOTFS)
             {

@@ -98,10 +98,19 @@ namespace StudioCore.MsbEditor
         {
             foreach (var change in Changes)
             {
+                bool isList = change?.GetType() == typeof(List<>);
+                string myString = change.Property.Name;
                 if (change.Property.PropertyType.IsArray && change.ArrayIndex != -1)
                 {
                     Array a = (Array)change.Property.GetValue(ChangedObject);
-                    a.SetValue(change.NewValue, change.ArrayIndex);
+                    a.SetValue(change.NewValue, (Int32)change.ArrayIndex);
+                }
+                // Currently broken, but at least it no longer crashes
+                else if (change.Property.Name == "BoneIndices")
+                {
+                    List<Int32> l = (List<Int32>)change.Property.GetValue(ChangedObject);
+                    Int32[] newL = l.ToArray();
+                    newL.SetValue(change.NewValue, (Int32)change.ArrayIndex);
                 }
                 else
                 {

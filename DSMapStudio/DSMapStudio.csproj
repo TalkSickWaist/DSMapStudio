@@ -38,4 +38,10 @@
     <ProjectReference Include="..\Veldrid.SDL2\Veldrid.SDL2.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="imgui.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

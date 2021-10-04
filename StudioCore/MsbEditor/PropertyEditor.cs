@@ -9,6 +9,7 @@ using SoulsFormats;
 using ImGuiNET;
 using System.Net.Http.Headers;
 using System.Security;
+using System.Text.RegularExpressions;
 
 namespace StudioCore.MsbEditor
 {
@@ -18,10 +19,6 @@ namespace StudioCore.MsbEditor
 
         private Dictionary<string, PropertyInfo[]> _propCache = new Dictionary<string, PropertyInfo[]>();
 
-        private object _changingObject = null;
-        private object _changingPropery = null;
-        private Action _lastUncommittedAction = null;
-
         private string _refContextCurrentAutoComplete = "";
 
         public PropertyEditor(ActionManager manager)
@@ -29,7 +26,7 @@ namespace StudioCore.MsbEditor
             ContextActionManager = manager;
         }
 
-        private bool PropertyRow(Type typ, object oldval, out object newval, bool isBool, Entity obj=null, string propname=null)
+        private bool PropertyRow(Type typ, object oldval, out object newval, bool isBool)
         {
             try
             {
@@ -132,17 +129,6 @@ namespace StudioCore.MsbEditor
                         return true;
                     }
                 }
-                if (obj != null && ImGui.BeginPopupContextItem(propname))
-                {
-                    bool r = false;
-                    if (ImGui.Selectable("Set Next Unique Value"))
-                    {
-                        newval = obj.Container.GetNextUnique(propname, val);
-                        ImGui.EndPopup();
-                        return true;
-                    }
-                    ImGui.EndPopup();
-                }
             }
             else if (typ == typeof(bool))
             {
@@ -170,7 +156,7 @@ namespace StudioCore.MsbEditor
                 {
                     val = "";
                 }
-                if (ImGui.InputText("##value", ref val, 40))
+                if (ImGui.InputText("##value", ref val, 128))
                 {
                     newval = val;
                     return true;
@@ -205,36 +191,19 @@ namespace StudioCore.MsbEditor
             return false;
         }
 
-        private void UpdateProperty(object prop, Entity selection, object obj, object newval,
-            bool changed, bool committed, bool shouldUpdateVisual, bool destroyRenderModel, int arrayindex = -1)
+        private void UpdateProperty(object prop, object obj, object newval,
+            bool changed, bool committed, int arrayindex = -1)
         {
             if (changed)
             {
-                ChangeProperty(prop, selection, obj, newval, ref committed, shouldUpdateVisual, destroyRenderModel, arrayindex);
-            }
-            if (committed)
-            {
-                CommitProperty(selection, destroyRenderModel);
+                ChangeProperty(prop, obj, newval, ref committed, arrayindex);
             }
         }
 
-        private void ChangeProperty(object prop, Entity selection, object obj, object newval,
-            ref bool committed, bool shouldUpdateVisual, bool destroyRenderModel, int arrayindex = -1)
+        private void ChangeProperty(object prop, object obj, object newval,
+            ref bool committed, int arrayindex = -1)
         {
-            if (prop == _changingPropery && _lastUncommittedAction != null && ContextActionManager.PeekUndoAction() == _lastUncommittedAction)
-            {
-                ContextActionManager.UndoAction();
-            }
-            else
-            {
-                _lastUncommittedAction = null;
-            }
-
-            if (_changingObject != null && selection != null && selection.WrappedObject != _changingObject)
-            {
-                committed = true;
-            }
-            else
+            if (committed)
             {
                 PropertiesChangedAction action;
                 if (arrayindex != -1)
@@ -245,99 +214,11 @@ namespace StudioCore.MsbEditor
                 {
                     action = new PropertiesChangedAction((PropertyInfo)prop, obj, newval);
                 }
-                if (shouldUpdateVisual && selection != null)
-                {
-                    action.SetPostExecutionAction((undo) =>
-                    {
-                        if (destroyRenderModel)
-                        {
-                            if (selection.RenderSceneMesh != null)
-                            {
-                                selection.RenderSceneMesh.Dispose();
-                                selection.RenderSceneMesh = null;
-                            }
-                        }
-                        selection.UpdateRenderModel();
-                    });
-                }
                 ContextActionManager.ExecuteAction(action);
-
-                _lastUncommittedAction = action;
-                _changingPropery = prop;
-                // ChangingObject = selection.MsbObject;
-                _changingObject = selection != null ? selection.WrappedObject : obj;
             }
         }
-        private void CommitProperty(Entity selection, bool destroyRenderModel)
-        {
-            // Invalidate name cache
-            if (selection != null)
-            {
-                selection.Name = null;
-            }
 
-            // Undo and redo the last action with a rendering update
-            if (_lastUncommittedAction != null && ContextActionManager.PeekUndoAction() == _lastUncommittedAction)
-            {
-                if (_lastUncommittedAction is PropertiesChangedAction a)
-                {
-                    // Kinda a hack to prevent a jumping glitch
-                    a.SetPostExecutionAction(null);
-                    ContextActionManager.UndoAction();
-                    if (selection != null)
-                    {
-                        a.SetPostExecutionAction((undo) =>
-                        {
-                            if (destroyRenderModel)
-                            {
-                                if (selection.RenderSceneMesh != null)
-                                {
-                                    selection.RenderSceneMesh.Dispose();
-                                    selection.RenderSceneMesh = null;
-                                }
-                            }
-                            selection.UpdateRenderModel();
-                        });
-                    }
-                    ContextActionManager.ExecuteAction(a);
-                }
-            }
-
-            _lastUncommittedAction = null;
-            _changingPropery = null;
-            _changingObject = null;
-        }
-
-        private void PropEditorParamRow(Entity selection)
-        {
-            IReadOnlyList<PARAM.Cell> cells = new List<PARAM.Cell>();
-            if (selection.WrappedObject is PARAM.Row row)
-            {
-                cells = row.Cells;
-
-            }
-            else if (selection.WrappedObject is MergedParamRow mrow)
-            {
-                cells = mrow.Cells;
-            }
-            ImGui.Columns(2);
-            ImGui.Separator();
-            int id = 0;
-
-            // This should be rewritten somehow it's super ugly
-            var nameProp = selection.WrappedObject.GetType().GetProperty("Name");
-            var idProp = selection.WrappedObject.GetType().GetProperty("ID");
-            PropEditorPropInfoRow(selection.WrappedObject, nameProp, "Name", ref id, selection);
-            PropEditorPropInfoRow(selection.WrappedObject, idProp, "ID", ref id, selection);
-
-            foreach (var cell in cells)
-            {
-                PropEditorPropCellRow(cell, ref id, selection);
-            }
-            ImGui.Columns(1);
-        }
-
-        public void PropEditorParamRow(PARAM.Row row)
+        public void PropEditorParamRow(PARAM.Row row, ref string propSearchString)
         {
             IReadOnlyList<PARAM.Cell> cells = new List<PARAM.Cell>();
             cells = row.Cells;
@@ -345,12 +226,25 @@ namespace StudioCore.MsbEditor
             ImGui.Separator();
             int id = 0;
 
+            if (propSearchString != null)
+                ImGui.InputText("Search...", ref propSearchString, 255);
+            Regex propSearchRx = null;
+            try
+            {
+                propSearchRx = new Regex(propSearchString.ToLower());
+            }
+            catch
+            {
+            }
+            ImGui.NextColumn();
+            ImGui.NextColumn();
+
             // This should be rewritten somehow it's super ugly
             ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.8f, 0.8f, 0.8f, 1.0f));
             var nameProp = row.GetType().GetProperty("Name");
             var idProp = row.GetType().GetProperty("ID");
-            PropEditorPropInfoRow(row, nameProp, "Name", ref id, null);
-            PropEditorPropInfoRow(row, idProp, "ID", ref id, null);
+            PropEditorPropInfoRow(row, nameProp, "Name", ref id, propSearchRx);
+            PropEditorPropInfoRow(row, idProp, "ID", ref id, propSearchRx);
             ImGui.PopStyleColor();
 
             ParamMetaData meta  = ParamMetaData.Get(row.Def);
@@ -365,40 +259,50 @@ namespace StudioCore.MsbEditor
                     }
                     if (row[field] == null)
                         continue;
-                    PropEditorPropCellRow(row[field], ref id, null);
+                    PropEditorPropCellRow(row[field], ref id, propSearchRx);
                 }
                 foreach (var cell in cells)
                 {
                     if (!meta.AlternateOrder.Contains(cell.Def.InternalName))
-                        PropEditorPropCellRow(cell, ref id, null);
+                        PropEditorPropCellRow(cell, ref id, propSearchRx);
                 }
             }
             else
             {
                 foreach (var cell in cells)
                 {
-                    PropEditorPropCellRow(cell, ref id, null);
+                    PropEditorPropCellRow(cell, ref id, propSearchRx);
                 }
             }
             ImGui.Columns(1);
         }
         
         // Many parameter options, which may be simplified.
-        private void PropEditorPropInfoRow(object rowOrWrappedObject, PropertyInfo prop, string visualName, ref int id, Entity nullableSelection)
+        private void PropEditorPropInfoRow(PARAM.Row row, PropertyInfo prop, string visualName, ref int id, Regex propSearchRx)
         {
-            PropEditorPropRow(prop.GetValue(rowOrWrappedObject), ref id, visualName, null, prop.PropertyType, prop, rowOrWrappedObject, nullableSelection);
+            PropEditorPropRow(prop.GetValue(row), ref id, visualName, null, prop.PropertyType, prop, null, row, propSearchRx);
         }
-        private void PropEditorPropCellRow(PARAM.Cell cell, ref int id, Entity nullableSelection)
+        private void PropEditorPropCellRow(PARAM.Cell cell, ref int id, Regex propSearchRx)
         {
-            PropEditorPropRow(cell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.GetType().GetProperty("Value"), cell, nullableSelection);
+            PropEditorPropRow(cell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.GetType().GetProperty("Value"), cell, null, propSearchRx);
         }
-        private void PropEditorPropRow(object oldval, ref int id, string internalName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, object cellOrWrappedObject, Entity nullableSelection)
+        private void PropEditorPropRow(object oldval, ref int id, string internalName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, PARAM.Cell nullableCell, PARAM.Row nullableRow, Regex propSearchRx)
         {
             List<string> RefTypes = cellMeta == null ? null : cellMeta.RefTypes;
             string VirtualRef = cellMeta == null ? null : cellMeta.VirtualRef;
             ParamEnum Enum = cellMeta == null ? null : cellMeta.EnumType;
             string Wiki = cellMeta == null ? null : cellMeta.Wiki;
             bool IsBool = cellMeta == null ? false : cellMeta.IsBool;
+            string AltName = cellMeta == null ? null : cellMeta.AltName;
+
+            if (propSearchRx != null)
+            {
+                if (!propSearchRx.IsMatch(internalName.ToLower()) && !(AltName != null && propSearchRx.IsMatch(AltName.ToLower())))
+                {
+                    return;
+                }
+            }
+
             object newval = null;
             ImGui.PushID(id);
             ImGui.AlignTextToFramePadding();
@@ -409,16 +313,20 @@ namespace StudioCore.MsbEditor
                 if (UIHints.AddImGuiHintButton(internalName, ref Wiki))
                     cellMeta.Wiki = Wiki;
             }
+
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 1.0f, 0.0f, 1.0f));
             if (ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null)
-                ImGui.TextColored(new Vector4(1.0f, 1.0f, 0.0f, 1.0f), @$"  <{String.Join(',', RefTypes)}>");
+                ImGui.TextUnformatted($@"  <{String.Join(',', RefTypes)}>");
             if (ParamEditorScreen.HideEnumsPreference == false && Enum != null)
-                ImGui.TextColored(new Vector4(1.0f, 1.0f, 0.0f, 1.0f), @$"  {Enum.name}");
+                ImGui.TextUnformatted($@"  {Enum.name}");
+            ImGui.PopStyleColor();
+
             //PropertyRowMetaDefContextMenu();
             ImGui.NextColumn();
             ImGui.SetNextItemWidth(-1);
             bool changed = false;
 
-            bool matchDefault = cellOrWrappedObject != null && cellOrWrappedObject is PARAM.Cell && ((PARAM.Cell) cellOrWrappedObject).Def.Default.Equals(oldval);
+            bool matchDefault = nullableCell != null && nullableCell.Def.Default.Equals(oldval);
             if (matchDefault)
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.75f, 0.75f, 1.0f));
             else if ((ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null) || (ParamEditorScreen.HideEnumsPreference == false && Enum != null) || VirtualRef != null)
@@ -433,14 +341,18 @@ namespace StudioCore.MsbEditor
             if (ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null)
                 PropertyRowRefs(RefTypes, oldval);
             if (ParamEditorScreen.HideEnumsPreference == false && Enum != null)
-                ImGui.TextColored(new Vector4(1.0f, 0.5f, 0.5f, 1.0f), Enum.values.GetValueOrDefault(oldval.ToString(), "Not Enumerated"));
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 0.5f, 1.0f));
+                ImGui.TextUnformatted(Enum.values.GetValueOrDefault(oldval.ToString(), "Not Enumerated"));
+                ImGui.PopStyleColor();
+            }
             if ((ParamEditorScreen.HideReferenceRowsPreference == false || ParamEditorScreen.HideEnumsPreference == false) && PropertyRowMetaValueContextMenu(oldval, ref newval, RefTypes, Enum))
             {
                 changed = true;
                 committed = true;
             }
 
-            UpdateProperty(proprow, nullableSelection, cellOrWrappedObject, newval, changed, committed, false, false);
+            UpdateProperty(proprow, nullableCell != null ? (object)nullableCell : nullableRow, newval, changed, committed);
             ImGui.NextColumn();
             ImGui.PopID();
             id++;
@@ -503,21 +415,25 @@ namespace StudioCore.MsbEditor
                     if (r == null)
                         continue;
                     entryFound = true;
+                    ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 0.5f, 1.0f));
                     if (r.Name == null || r.Name.Equals(""))
                     {
-                        ImGui.TextColored(new Vector4(1.0f, 0.5f, 0.5f, 1.0f), "Unnamed Row");
+                        ImGui.TextUnformatted("Unnamed Row");
                     }
                     else
                     {
-                        ImGui.TextColored(new Vector4(1.0f, 0.5f, 0.5f, 1.0f), r.Name + hint);
+                        ImGui.TextUnformatted(r.Name + hint);
                     }
+                    ImGui.PopStyleColor();
                     ImGui.NewLine();
                 }
             }
             ImGui.SameLine();
             if (!entryFound)
             {
-                ImGui.TextColored(new Vector4(0.0f, 0.0f, 0.0f, 1.0f), "___");
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+                ImGui.TextUnformatted("___");
+                ImGui.PopStyleColor();
             }
         }
         private void PropertyRowNameContextMenu(string originalName, FieldMetaData cellMeta)
@@ -680,11 +596,15 @@ namespace StudioCore.MsbEditor
                     continue;
                 if (ImGui.Selectable($@"Go to first in {param.Key}"))
                 {   
+                            Console.WriteLine($@"{foundfield.InternalName} - {searchValue}");
+                            Console.WriteLine($@"{param.Key}");
                     foreach (PARAM.Row row in param.Value.Rows)
                     {
-                        if (row[foundfield.InternalName].Value.Equals(searchValue))
+                            Console.WriteLine($@"{row.ID} - {row[foundfield.InternalName].Value}");
+                        if (row[foundfield.InternalName].Value.ToString().Equals(searchValue.ToString()))
                         {
                             EditorCommandQueue.AddCommand($@"param/select/-1/{param.Key}/{row.ID}");
+                            Console.WriteLine($@"param/select/-1/{param.Key}/{row.ID}");
                             break;
                         }
                     }
@@ -729,7 +649,6 @@ namespace StudioCore.MsbEditor
             // ImGui.AlignTextToFramePadding();
             var typ = typeof(string);
             var oldval = entry.Text;
-            bool shouldUpdateVisual = false;
             bool changed = false;
             object newval = null;
 
@@ -756,7 +675,7 @@ namespace StudioCore.MsbEditor
             }
 
             bool committed = ImGui.IsItemDeactivatedAfterEdit();
-            UpdateProperty(entry.GetType().GetProperty("Text"), null, entry, newval, changed, committed, shouldUpdateVisual, false);
+            UpdateProperty(entry.GetType().GetProperty("Text"), entry, newval, changed, committed);
 
             ImGui.NextColumn();
             ImGui.PopID();
@@ -768,344 +687,15 @@ namespace StudioCore.MsbEditor
             ImGui.Columns(1);
         }
 
-        private void PropertyContextMenu(object obj, PropertyInfo propinfo)
-        {
-            if (ImGui.BeginPopupContextItem(propinfo.Name))
-            {
-                var att = propinfo.GetCustomAttribute<MSBParamReference>();
-                if (att != null)
-                {
-                    if (ImGui.Selectable($@"Goto {att.ParamName}"))
-                    {
-                        var id = (int)propinfo.GetValue(obj);
-                        EditorCommandQueue.AddCommand($@"param/select/-1/{att.ParamName}/{id}");
-                    }
-                }
-                if (ImGui.Selectable($@"Search"))
-                {
-                    EditorCommandQueue.AddCommand($@"map/propsearch/{propinfo.Name}");
-                }
-                ImGui.EndPopup();
-            }
-        }
-        
-        private void PropEditorFlverLayout(Entity selection, FLVER2.BufferLayout layout)
-        {
-            foreach (var l in layout)
-            {
-                ImGui.Text(l.Semantic.ToString());
-                ImGui.NextColumn();
-                ImGui.Text(l.Type.ToString());
-                ImGui.NextColumn();
-            }
-        }
-
-        internal enum RegionShape
-        {
-            Point,
-            Sphere,
-            Cylinder,
-            Box,
-            Composite,
-        }
-
-        private string[] _regionShapes =
-        {
-            "Point",
-            "Sphere",
-            "Cylinder",
-            "Box",
-            "Composite",
-        };
-
-        private void PropEditorGeneric(Entity selection, object target=null, bool decorate=true)
-        {
-            var obj = (target == null) ? selection.WrappedObject : target;
-            var type = obj.GetType();
-            if (!_propCache.ContainsKey(type.FullName))
-            {
-                _propCache.Add(type.FullName, type.GetProperties(BindingFlags.Instance | BindingFlags.Public));
-            }
-            var properties = _propCache[type.FullName];
-            if (decorate)
-            {
-                ImGui.Columns(2);
-                ImGui.Separator();
-                ImGui.Text("Object Type");
-                ImGui.NextColumn();
-                ImGui.Text(type.Name);
-                ImGui.NextColumn();
-            }
-
-            // Custom editors
-            if (type == typeof(FLVER2.BufferLayout))
-            {
-                PropEditorFlverLayout(selection, (FLVER2.BufferLayout)obj);
-            }
-            else
-            {
-                int id = 0;
-                foreach (var prop in properties)
-                {
-                    if (!prop.CanWrite && !prop.PropertyType.IsArray)
-                    {
-                        continue;
-                    }
-
-                    if (prop.GetCustomAttribute<HideProperty>() != null)
-                    {
-                        continue;
-                    }
-
-                    ImGui.PushID(id);
-                    ImGui.AlignTextToFramePadding();
-                    // ImGui.AlignTextToFramePadding();
-                    var typ = prop.PropertyType;
-
-                    if (typ.IsArray)
-                    {
-                        Array a = (Array)prop.GetValue(obj);
-                        for (int i = 0; i < a.Length; i++)
-                        {
-                            ImGui.PushID(i);
-
-                            var arrtyp = typ.GetElementType();
-                            if (arrtyp.IsClass && arrtyp != typeof(string) && !arrtyp.IsArray)
-                            {
-                                bool open = ImGui.TreeNodeEx($@"{prop.Name}[{i}]", ImGuiTreeNodeFlags.DefaultOpen);
-                                ImGui.NextColumn();
-                                ImGui.SetNextItemWidth(-1);
-                                var o = a.GetValue(i);
-                                ImGui.Text(o.GetType().Name);
-                                ImGui.NextColumn();
-                                if (open)
-                                {
-                                    PropEditorGeneric(selection, o, false);
-                                    ImGui.TreePop();
-                                }
-                                ImGui.PopID();
-                            }
-                            else
-                            {
-                                ImGui.Text($@"{prop.Name}[{i}]");
-                                ImGui.NextColumn();
-                                ImGui.SetNextItemWidth(-1);
-                                var oldval = a.GetValue(i);
-                                bool shouldUpdateVisual = false;
-                                bool changed = false;
-                                object newval = null;
-
-                                changed = PropertyRow(typ.GetElementType(), oldval, out newval, false);
-                                // PropertyContextMenu(prop);
-                                if (ImGui.IsItemActive() && !ImGui.IsWindowFocused())
-                                {
-                                    ImGui.SetItemDefaultFocus();
-                                }
-                                bool committed = ImGui.IsItemDeactivatedAfterEdit();
-                                UpdateProperty(prop, selection, obj, newval, changed, committed, shouldUpdateVisual, false, i);
-
-                                ImGui.NextColumn();
-                                ImGui.PopID();
-                            }
-                        }
-                        ImGui.PopID();
-                    }
-                    else if (typ.IsGenericType && typ.GetGenericTypeDefinition() == typeof(List<>))
-                    {
-                        object l = prop.GetValue(obj);
-                        PropertyInfo itemprop = l.GetType().GetProperty("Item");
-                        int count = (int)l.GetType().GetProperty("Count").GetValue(l);
-                        for (int i = 0; i < count; i++)
-                        {
-                            ImGui.PushID(i);
-
-                            var arrtyp = typ.GetGenericArguments()[0];
-                            if (arrtyp.IsClass && arrtyp != typeof(string) && !arrtyp.IsArray)
-                            {
-                                bool open = ImGui.TreeNodeEx($@"{prop.Name}[{i}]", ImGuiTreeNodeFlags.DefaultOpen);
-                                ImGui.NextColumn();
-                                ImGui.SetNextItemWidth(-1);
-                                var o = itemprop.GetValue(l, new object[] { i });
-                                ImGui.Text(o.GetType().Name);
-                                ImGui.NextColumn();
-                                if (open)
-                                {
-                                    PropEditorGeneric(selection, o, false);
-                                    ImGui.TreePop();
-                                }
-                                ImGui.PopID();
-                            }
-                            else
-                            {
-                                ImGui.Text($@"{prop.Name}[{i}]");
-                                ImGui.NextColumn();
-                                ImGui.SetNextItemWidth(-1);
-                                var oldval = itemprop.GetValue(l, new object[] { i });
-                                bool shouldUpdateVisual = false;
-                                bool changed = false;
-                                object newval = null;
-
-                                changed = PropertyRow(arrtyp, oldval, out newval, false);
-                                PropertyContextMenu(obj, prop);
-                                if (ImGui.IsItemActive() && !ImGui.IsWindowFocused())
-                                {
-                                    ImGui.SetItemDefaultFocus();
-                                }
-                                bool committed = ImGui.IsItemDeactivatedAfterEdit();
-                                UpdateProperty(prop, selection, obj, newval, changed, committed, shouldUpdateVisual, false, i);
-
-                                ImGui.NextColumn();
-                                ImGui.PopID();
-                            }
-                        }
-                        ImGui.PopID();
-                    }
-                    // TODO: find a better place to handle this special case (maybe)
-                    else if (typ.IsClass && typ == typeof(MSB.Shape))
-                    {
-                        bool open = ImGui.TreeNodeEx(prop.Name, ImGuiTreeNodeFlags.DefaultOpen);
-                        ImGui.NextColumn();
-                        ImGui.SetNextItemWidth(-1);
-                        var o = prop.GetValue(obj);
-                        var shapetype = Enum.Parse<RegionShape>(o.GetType().Name);
-                        int shap = (int)shapetype;
-                        if (ImGui.Combo("##shapecombo", ref shap, _regionShapes, _regionShapes.Length))
-                        {
-                            MSB.Shape newshape;
-                            switch ((RegionShape)shap)
-                            {
-                                case RegionShape.Box:
-                                    newshape = new MSB.Shape.Box();
-                                    break;
-                                case RegionShape.Point:
-                                    newshape = new MSB.Shape.Point();
-                                    break;
-                                case RegionShape.Cylinder:
-                                    newshape = new MSB.Shape.Cylinder();
-                                    break;
-                                case RegionShape.Sphere:
-                                    newshape = new MSB.Shape.Sphere();
-                                    break;
-                                case RegionShape.Composite:
-                                    newshape = new MSB.Shape.Composite();
-                                    break;
-                                default:
-                                    throw new Exception("Invalid shape");
-                            }
-                            //UpdateProperty(prop, selection, obj, newshape, true, true, true, true);
-
-                            var action = new PropertiesChangedAction((PropertyInfo)prop, obj, newshape);
-                            action.SetPostExecutionAction((undo) =>
-                            {
-                                bool selected = false;
-                                if (selection.RenderSceneMesh != null)
-                                {
-                                    selected = selection.RenderSceneMesh.RenderSelectionOutline;
-                                    selection.RenderSceneMesh.Dispose();
-                                    selection.RenderSceneMesh = null;
-                                }
-
-                                selection.UpdateRenderModel();
-                                selection.RenderSceneMesh.RenderSelectionOutline = selected;
-                            });
-
-                            ContextActionManager.ExecuteAction(action);
-                        }
-                        ImGui.NextColumn();
-                        if (open)
-                        {
-                            PropEditorGeneric(selection, o, false);
-                            ImGui.TreePop();
-                        }
-                        ImGui.PopID();
-                    }
-                    else if (typ.IsClass && typ != typeof(string) && !typ.IsArray)
-                    {
-                        bool open = ImGui.TreeNodeEx(prop.Name, ImGuiTreeNodeFlags.DefaultOpen);
-                        ImGui.NextColumn();
-                        ImGui.SetNextItemWidth(-1);
-                        var o = prop.GetValue(obj);
-                        ImGui.Text(o.GetType().Name);
-                        ImGui.NextColumn();
-                        if (open)
-                        {
-                            PropEditorGeneric(selection, o, false);
-                            ImGui.TreePop();
-                        }
-                        ImGui.PopID();
-                    }
-                    else
-                    {
-                        ImGui.Text(prop.Name);
-                        ImGui.NextColumn();
-                        ImGui.SetNextItemWidth(-1);
-                        var oldval = prop.GetValue(obj);
-                        bool shouldUpdateVisual = false;
-                        bool changed = false;
-                        object newval = null;
-
-                        changed = PropertyRow(typ, oldval, out newval, false, selection, prop.Name);
-                        PropertyContextMenu(obj, prop);
-                        if (ImGui.IsItemActive() && !ImGui.IsWindowFocused())
-                        {
-                            ImGui.SetItemDefaultFocus();
-                        }
-                        bool committed = ImGui.IsItemDeactivatedAfterEdit();
-                        UpdateProperty(prop, selection, obj, newval, changed, committed, shouldUpdateVisual, false);
-
-                        ImGui.NextColumn();
-                        ImGui.PopID();
-                    }
-                    id++;
-                }
-            }
-            if (decorate)
-            {
-                ImGui.Columns(1);
-                if (selection.References != null)
-                {
-                    ImGui.NewLine();
-                    ImGui.Text("References: ");
-                    foreach (var m in selection.References)
-                    {
-                        foreach (var n in m.Value)
-                        {
-                            ImGui.Text(n.PrettyName);
-                        }
-                    }
-                }
-                ImGui.NewLine();
-                ImGui.Text("Objects referencing this object:");
-                foreach (var m in selection.GetReferencingObjects())
-                {
-                    ImGui.Text(m.PrettyName);
-                }
-            }
-        }
-
-        public void OnGui(Entity selection, string id, float w, float h)
+        public void OnGui(PARAM.Row selection, string id, float w, float h)
         {
             ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.145f, 0.145f, 0.149f, 1.0f));
             ImGui.SetNextWindowSize(new Vector2(350, h - 80), ImGuiCond.FirstUseEver);
             ImGui.SetNextWindowPos(new Vector2(w - 370, 20), ImGuiCond.FirstUseEver);
             ImGui.Begin($@"Properties##{id}");
             ImGui.BeginChild("propedit");
-            if (selection == null || selection.WrappedObject == null)
-            {
-                ImGui.Text("Select a single object to edit properties.");
-                ImGui.EndChild();
-                ImGui.End();
-                ImGui.PopStyleColor();
-                return;
-            }
-            if (selection.WrappedObject is PARAM.Row prow || selection.WrappedObject is MergedParamRow)
-            {
-                PropEditorParamRow(selection);
-            }
-            else
-            {
-                PropEditorGeneric(selection);
-            }
+            string _noSearchStr = null;
+            PropEditorParamRow(selection, ref _noSearchStr);
             ImGui.EndChild();
             ImGui.End();
             ImGui.PopStyleColor();

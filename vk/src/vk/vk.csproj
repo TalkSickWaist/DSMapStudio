@@ -20,6 +20,7 @@
     <Authors>Eric Mellino</Authors>
     <ProjectUrl>https://github.com/mellinoe/vk</ProjectUrl>
     <RepositoryUrl>https://github.com/mellinoe/vk</RepositoryUrl>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup>
     <VkRewriteExecutable>$(BinDir)/$(Configuration)/vk.rewrite/netcoreapp2.0/vk.rewrite.dll</VkRewriteExecutable>

@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="utf-8"?>
+<event_template game="SOTFS">
+  <bank id="1" name="DS2 TAE">
+	<event id="100" name="Event100">
+	</event>
+	<event id="201" name="PlaySound">
+		  <s32 name="ID"/>
+		  <s32/>
+      <s16/>
+	  <s16/>
+      <s16/>
+	  <s16/>
+      <s16/>
+      <s16 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="202" name="ChrSoundCtrl2">
+	<s32 name="ID"/>
+		  <s32/>
+      <s16 assert="-1"/>
+	  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s16 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="300" name="ChrAICtrl0">
+		  <s32/>
+		  <s32 assert="0"/>
+      <s16 assert="0"/>
+      <s32 assert="0"/>
+      <s16 assert="0"/>
+      <s16 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="301" name="ChrAiCtrl1">
+		  <s32/>
+		  <s32/>
+      <s16 assert="0"/>
+      <s32 assert="0"/>
+      <s16 assert="0"/>
+      <s16 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="1220" name="InvokeParry">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="1230" name="ChrParryCtrl3">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="1501" name="ChrCameraCtrl1">
+		 <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="1502" name="ChrCameraCtrl2">
+		 <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="1503" name="ChrCameraCtrl3">
+		 <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="1504" name="InvokeCameraExFollowImpact">
+		  <s32 name="CameraExFollowUpImpactParam ID"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2100" name="ChrSfxCtrl0">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2101" name="ChrSfxCtrl1">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2102" name="ChrSfxCtrl2">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2103" name="InvokeChrFullBodySfx">
+		  <s32 name="ChrFullBodySfx ID"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2104" name="ChrSfxCtrl4">
+		  <s32/>
+      <s32/>
+      <s32/>
+      <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2105" name="ChrSfxCtrl5">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2106" name="SimpletonSfx">
+		  <s32/>
+      <s32/>
+      <s32/>
+      <s32/>
+      <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2200" name="InvokeDamage">
+		  <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2201" name="InvokeCriticalDamage">
+		   <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2202" name="InvokeConditionalDamage">
+		 <s32 name="PlayerDamage ID"/>
+      <s32 name="Condition"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2203" name="InvokeFlatDamage">
+		 <s32 name="PlayerDamageParam ID"/>
+		 <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2300" name="InvokeBulletOnSwing">
+		  <s32 name="Type">
+			<entry value="0" name="0: Swing End"/>
+			<entry value="1" name="1: Swing Start"/>
+			<entry value="2" name="2: Unk"/>
+			<entry value="3" name="3: Unk"/>
+			<entry value="4" name="4: Unk"/>
+			<entry value="5" name="5: Unk"/>
+			<entry value="6" name="6: Unk"/>
+			<entry value="7" name="7: Unk"/>
+		  </s32>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2301" name="InvokeBullet">
+		  <s32 name="Bullet 1 - ID"/>
+		  <s32 name="Bullet 2 - ID"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2400" name="ChrFootEffectCtrl0">
+		  <s32 assert="0"/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2401" name="ChrFootEffectCtrl1">
+		  <s32 assert="0"/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2402" name="ChrFootEffectCtrl2">
+		  <s32/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2403" name="ChrFootEffectCtrl3">
+		  <s32 assert="0"/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2500" name="ChrWeaponCtrl0">
+		  <s32 assert="0"/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2501" name="ChrWeaponCtrl1">
+		  <s32 assert="0"/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2502" name="ChrWeaponCtrl2">
+		  <s32 assert="0"/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="2600" name="ChrLockOnCtrl">
+		  <s32 assert="0"/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+  <event id="101100" name="PauseStaminaRegen">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110000" name="ChrDamageActionCtrl0">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110100" name="DisableHurtbox">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110200" name="ChrDamageActionCtrl2">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110210" name="ChrDamageActionCtrl2Alt">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110300" name="InvokeAgilityBasedInvincibility">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110400" name="InvokeInvincibility">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110500" name="InvokeSuperArmor">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110600" name="ChrDamageActionCtrl6">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110700" name="ChrDamageActionCtrl7">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110800" name="ChrDamageActionCtrl8">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="110900" name="ChrDamageActionCtrl9">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111000" name="ChrDamageActionCtrl10">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111100" name="ChrDamageActionCtrl11">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111200" name="ChrDamageActionCtrl12">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+   <event id="111300" name="ChrDamageActionCtrl13">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111400" name="ChrDamageActionCtrl14">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111500" name="ChrDamageActionCtrl15">
+    <s32 assert="0"/>
+	<s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111600" name="ChrDamageActionCtrl16">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111700" name="ChrDamageActionCtrl17">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111800" name="ChrDamageActionCtrl18">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+  <event id="111900" name="ChrDamageActionCtrl19">
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+    <s32 assert="0"/>
+  </event>
+   <event id="120100" name="EnableTracking">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+  <event id="120200" name="ChrAttackCtrl2">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="120300" name="InvokeWeaponTrail">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="210000" name="ChrGimmickCtrl0">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="210099" name="ChrGimmickCtrl9">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="210100" name="ChrGimmickCtrl10">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="210200" name="ChrGimmickCtrl20">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="220000" name="InvokeItemEffect">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="220100" name="InvokeMovementCorrection">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="220200" name="ChrItemBehaviour">
+      <s32 name="Type">
+		<entry value="7" name="7: Unk"/>
+		<entry value="20" name="20: Unk"/>
+		<entry value="21" name="21: Unk"/>
+		<entry value="26" name="26: Unk"/>
+		<entry value="220" name="220: Unk"/>
+		<entry value="249" name="249: Unk"/>
+      </s32>
+	  <s32/>
+      <s32/>
+      <f32/>
+	</event>
+	<event id="220300" name="ChrItemCtrl3">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="230000" name="ChrGenerateCtrl0">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="230001" name="ChrGenerateCtr1">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="240000" name="ChrDeadCtrl">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="250000" name="ChrObjectGenerateCtrl">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="260000" name="ChrModelCtrl0">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="260001" name="ChrModelCtrl1">
+      <s32>
+		<entry value="0" name="0: Disable Movement"/>
+		<entry value="1" name="1: Unk"/>
+	  </s32>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="260002" name="ChrModelCtrl2">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="260003" name="ChrModelCtrl3">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="260004" name="ChrModelCtrl4">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="260005" name="AdjustChrOpacity">
+      <f32/>
+      <f32/>
+      <s32/>
+      <s32 assert="0"/>
+	</event>
+	<event id="260006" name="ChrModelCtrl6">
+      <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="270000" name="ChrPartsCtrl0">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="270001" name="ChrPartsCtrl1">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="270002" name="ChrPartsCtrl2">
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+  <event id="280000" name="ChrMoveCtrl">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+  <event id="280100" name="SetChrTurnRate?">
+		  <f32 name="TurnRate?"/>
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="290000" name="ChrCollisionCtrl0">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="290001" name="ChrCollisionCtrl1">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="290002" name="DisableMovement">
+		  <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="300000" name="ChrEventCtrl0">
+		  <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="300100" name="InvokePadRumble">
+	  <s32>
+		<entry value="9" name="9: Unk"/>
+		<entry value="249" name="249: Unk"/>
+		<entry value="220" name="220: Unk"/>
+	  </s32>
+      <s32 name="PadRumbleParam ID"/>
+      <f32 name="Intensity"/>
+      <f32 assert="5"/>
+      <f32 assert="5"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="300200" name="ChrEventCtrl2">
+		  <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="300300" name="ChrEventCtrl3">
+		  <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+	<event id="310000" name="InvokeSpEffect">
+		  <s32 name="ID"/>
+		  <s32/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+      <s32 assert="0"/>
+	</event>
+  </bank>
+</event_template>

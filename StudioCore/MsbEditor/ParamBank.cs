@@ -198,6 +198,9 @@ namespace StudioCore.MsbEditor
             "eventlocation",
             "eventparam",
             "generatordbglocation",
+            "generatorlocation",
+            "generatorparam",
+            "generatorregistparam",
             "hitgroupparam",
             "intrudepointparam",
             "mapobjectinstanceparam",
@@ -217,7 +220,7 @@ namespace StudioCore.MsbEditor
             }
             if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
             {
-                MessageBox.Show("Attempting to decrypt DS2 regulation file, else functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show("Attempting to decrypt DS2 regulation file, else functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 //return;
             }
 

@@ -420,7 +420,7 @@ namespace StudioCore
                     {
                         if (shiftWasHeldBeforeClickM){//	Pan
                             Vector3 cameraSpacePanDirection = new Vector3(camH, camV, 0);
-							//		CameraMoveSpeed is not used so Msb and Model Editors work the same and movement speed is based on zoom. I hard coded 10 instead.
+                            //		CameraMoveSpeed is not used so Msb and Model Editors work the same and movement speed is based on zoom. I hard coded 10 instead.
                             MoveCamera(cameraSpacePanDirection.X, cameraSpacePanDirection.Y, cameraSpacePanDirection.Z, OrbitCamDistance * dt * 10);
                             UpdateOrbitCameraCenter();
                         }
